@@ -18,7 +18,10 @@ namespace LocalLLMChatVS.Services
     /// </summary>
     public class LLMService
     {
-        private static readonly HttpClient httpClient = new HttpClient();
+        private static readonly HttpClient httpClient = new HttpClient()
+        {
+            Timeout = System.Threading.Timeout.InfiniteTimeSpan
+        };
 
         /// <summary>
         /// Calls the LLM API with the provided messages
@@ -92,6 +95,12 @@ namespace LocalLLMChatVS.Services
                         }
 
                         string content = choices[0]["message"]?["content"]?.ToString();
+
+                        if (string.IsNullOrEmpty(content))
+                        {
+                            content = choices[0]["message"]?["reasoning_content"]?.ToString();
+                        }
+
                         if (string.IsNullOrEmpty(content))
                         {
                             throw new InvalidOperationException("Empty response from LLM");
